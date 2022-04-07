@@ -19,7 +19,6 @@ def start_message(message):
 def query_handler(call):
     global msg
     if call.data == 'rus1':
-        print(msg)
         url = f'https://gdz.ru/class-8/russkii_yazik/trostencova-8/{msg}-nom/'
         page = requests.get(url)
         soup = BeautifulSoup(page.text, "html.parser")
@@ -29,7 +28,37 @@ def query_handler(call):
                 if 'tasks' in img['src']:
                     url_image = f'https:{img["src"]}'
                     bot.send_photo(call.message.chat.id, photo=url_image)
-
+    elif call.data == 'rus2':
+        url = f'https://gdz.ru/class-8/russkii_yazik/barhudarov-8/{msg}-nom/'
+        page = requests.get(url)
+        soup = BeautifulSoup(page.text, "html.parser")
+        imgs = soup.findAll('img')
+        for img in imgs:
+            if img.has_attr('src'):
+                if 'tasks' in img['src']:
+                    url_image = f'https:{img["src"]}'
+                    bot.send_photo(call.message.chat.id, photo=url_image)
+    elif call.data == 'rus3':
+        url = f'https://gdz.ru/class-8/russkii_yazik/razumovskaya-11/{msg}-nom/'
+        page = requests.get(url)
+        soup = BeautifulSoup(page.text, "html.parser")
+        imgs = soup.findAll('img')
+        for img in imgs:
+            if img.has_attr('src'):
+                if 'tasks' in img['src']:
+                    url_image = f'https:{img["src"]}'
+                    bot.send_photo(call.message.chat.id, photo=url_image)
+    elif call.data == 'rus4':
+        url = f'https://gdz.ru/class-8/russkii_yazik/rybchenkova/{msg}-nom/'
+        page = requests.get(url)
+        soup = BeautifulSoup(page.text, "html.parser")
+        imgs = soup.findAll('img')
+        for img in imgs:
+            if img.has_attr('src'):
+                if 'tasks' in img['src']:
+                    url_image = f'https:{img["src"]}'
+                    bot.send_photo(call.message.chat.id, photo=url_image)
+    bot.send_message(call.message.chat.id, 'Введите номер упражнения')
 
 @bot.message_handler(content_types=['text'])
 def main(message):
