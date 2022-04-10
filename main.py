@@ -10,7 +10,8 @@ bot = telebot.TeleBot(token)
 urlsrus = ['https://gdz.ru/class-8/russkii_yazik/trostencova-8/', 'https://gdz.ru/class-8/russkii_yazik/barhudarov-8/',
            'https://gdz.ru/class-8/russkii_yazik/razumovskaya-11/', 'https://gdz.ru/class-8/russkii_yazik/rybchenkova/']
 urlsalg = ['https://gdz.ru/class-8/algebra/merzlyak/', 'https://gdz.ru/class-8/algebra/makarychev-8/',
-           'https://gdz.ru/class-8/algebra/makarychev-uglublennoe-izuchenie/', 'https://gdz.ru/class-8/algebra/merzlyak-polyakov/']
+           'https://gdz.ru/class-8/algebra/makarychev-uglublennoe-izuchenie/', 'https://gdz.ru/class-8/algebra/merzlyak-polyakov/',
+           'https://gdz.ru/class-8/algebra/kolyagin-tkacheva/']
 urlsgeom = ['https://gdz.ru/class-8/geometria/atanasyan-8/', 'https://gdz.ru/class-8/geometria/merzlyak/',
             'https://gdz.ru/class-8/geometria/merzlyak-polyakov-uglublennij-uroven/']
 urlseng = ['https://gdz.ru/class-8/english/reshebnik-spotlight-8-angliyskiy-v-fokuse-vaulina-yu-e/',
@@ -37,6 +38,9 @@ def start_message(message):
 @bot.callback_query_handler(func=lambda call: True)
 def query_handler(call):
     keyboard = types.InlineKeyboardMarkup()
+    markup = types.ReplyKeyboardMarkup()
+    backBtn = types.KeyboardButton("Перезапустить бота 👍")
+    markup.add(backBtn)
     global msg, stage, subject, isBack
     if stage == 1:
         if call.data == 'rus':
@@ -53,11 +57,11 @@ def query_handler(call):
                 bot.send_message(call.message.chat.id, 'Введите номер упражнения')
                 bot.send_message(call.message.chat.id, 'Если ваш учебник "Мерзляк, Поляков Углубленный уровень" введите'
                                                        ' номер параграфа и номер упражнения')
-                bot.send_message(call.message.chat.id, 'Пример: 1.1')
+                bot.send_message(call.message.chat.id, 'Пример: 1.1', reply_markup=markup)
             else:
-                bot.send_message(call.message.chat.id, 'Введите номер упражнения')
+                bot.send_message(call.message.chat.id, 'Введите номер упражнения', reply_markup=markup)
         else:
-            bot.send_message(call.message.chat.id, 'Введите номер страницы')
+            bot.send_message(call.message.chat.id, 'Введите номер страницы', reply_markup=markup)
     if stage == 3:
         if call.data == 'back':
             stage = 1
@@ -166,6 +170,16 @@ def query_handler(call):
                             bot.send_photo(call.message.chat.id, photo=url_image)
             elif call.data == 'alg4':
                 url = f'https://gdz.ru/class-8/algebra/merzlyak-polyakov/{msg}-nom/'
+                page = requests.get(url)
+                soup = BeautifulSoup(page.text, "html.parser")
+                imgs = soup.findAll('img')
+                for img in imgs:
+                    if img.has_attr('src'):
+                        if 'tasks' in img['src']:
+                            url_image = f'https:{img["src"]}'
+                            bot.send_photo(call.message.chat.id, photo=url_image)
+            elif call.data == 'alg5':
+                url = f'https://gdz.ru/class-8/algebra/kolyagin-tkacheva/{msg}-nom/'
                 page = requests.get(url)
                 soup = BeautifulSoup(page.text, "html.parser")
                 imgs = soup.findAll('img')
@@ -323,6 +337,9 @@ def query_handler(call):
                             url_image = f'https:{img["src"]}'
                             bot.send_photo(call.message.chat.id, photo=url_image)
         if isBack!=1:
+            btnBack = types.InlineKeyboardButton(text='Назад', callback_data='back')
+            keyboard.row(btnBack)
+            bot.send_message(call.message.chat.id, 'Чтобы вернуться назад нажмите на кнопку', reply_markup=keyboard)
             if subject != 'english':
                 if subject == 'geometry':
                     bot.send_message(call.message.chat.id, 'Введите номер упражнения')
@@ -332,15 +349,17 @@ def query_handler(call):
                     bot.send_message(call.message.chat.id, 'Пример: 1.1')
                 else:
                     bot.send_message(call.message.chat.id, 'Введите номер упражнения')
-            btnBack = types.InlineKeyboardButton(text='Назад', callback_data='back')
-            keyboard.row(btnBack)
-            bot.send_message(call.message.chat.id, 'Чтобы вернуться назад нажмите на кнопку', reply_markup=keyboard)
 
 
 @bot.message_handler(content_types=['text'])
 def main(message):
-    global msg, stage
+    global msg, stage, isBack
     msg = message.text
+    if msg == "Перезапустить бота 👍":
+        start_message(message)
+        isBack = 1
+    else:
+        isBack = 0
     if stage == 2:
         try:
             a = int(msg)
@@ -352,59 +371,62 @@ def main(message):
             except:
                 pass
     keyboard = types.InlineKeyboardMarkup()
-    if stage == 1:
-        btn1 = types.InlineKeyboardButton(text='Алгебра', callback_data='algebra')
-        btn2 = types.InlineKeyboardButton(text='Русский язык', callback_data='rus')
-        btn3 = types.InlineKeyboardButton(text='Английский язык', callback_data='english')
-        btn4 = types.InlineKeyboardButton(text='Геометрия', callback_data='geometry')
-        keyboard.row(btn1)
-        keyboard.row(btn2)
-        keyboard.row(btn3)
-        keyboard.row(btn4)
-        bot.send_message(message.chat.id, 'Выберите предмет', reply_markup=keyboard)
-    elif stage == 3:
-        if stage == 3:
-            if subject == 'rus':
-                btnrus1 = types.InlineKeyboardButton(text='Тростнецова, Ладыженская', callback_data='rus1')
-                btnrus2 = types.InlineKeyboardButton(text='Бархударов, Крючков', callback_data='rus2')
-                btnrus3 = types.InlineKeyboardButton(text='Разумовская, Львова, Капинос', callback_data='rus3')
-                btnrus4 = types.InlineKeyboardButton(text='Рыбченкова', callback_data='rus4')
-                keyboard.row(btnrus1)
-                keyboard.row(btnrus2)
-                keyboard.row(btnrus3)
-                keyboard.row(btnrus4)
-            elif subject == 'algebra':
-                btnalg1 = types.InlineKeyboardButton(text='Мерзляк, Полонский, Якир', callback_data='alg1')
-                btnalg2 = types.InlineKeyboardButton(text='Макарычев, Миндюк, Нешков, Суворова', callback_data='alg2')
-                btnalg3 = types.InlineKeyboardButton(text='Макарычев, Миндюк, Нешков Углубленный уровень', callback_data='alg3')
-                btnalg4 = types.InlineKeyboardButton(text='Мерзляк, Поляков Углубленный уровень', callback_data='alg4')
-                keyboard.row(btnalg1)
-                keyboard.row(btnalg2)
-                keyboard.row(btnalg3)
-                keyboard.row(btnalg4)
-            elif subject == 'geometry':
-                btngeom1 = types.InlineKeyboardButton(text='Атанасян, Бутузов', callback_data='geom1')
-                btngeom2 = types.InlineKeyboardButton(text='Мерзляк, Полонский', callback_data='geom2')
-                btngeom3 = types.InlineKeyboardButton(text='Мерзляк, Поляков Углубленный уровень', callback_data='geom3')
-                keyboard.row(btngeom1)
-                keyboard.row(btngeom2)
-                keyboard.row(btngeom3)
-            elif subject == 'english':
-                btneng1 = types.InlineKeyboardButton(text='Spotlight 8 Ваулина Ю.Е', callback_data='eng1')
-                btneng2 = types.InlineKeyboardButton(text='Кузовлев, Лапа Учебник Student`s book', callback_data='eng3')
-                btneng3 = types.InlineKeyboardButton(text='English-8 Student`s book. Афанасьева О.В., Михеева, И.В.', callback_data='eng4')
-                btneng4 = types.InlineKeyboardButton(text='рабочая тетрадь Ваулина, Дули', callback_data='eng5')
-                btneng5 = types.InlineKeyboardButton(text='рабочая тетрадь Кузовлев, Перегудова', callback_data='eng6')
-                btneng6 = types.InlineKeyboardButton(text='Activity Book Афанасьева, Михеева', callback_data='eng7')
-                btneng7 = types.InlineKeyboardButton(text='тренировочные упражнения Spotlight 8 Ваулина, Подоляко', callback_data='eng8')
-                keyboard.row(btneng1)
-                keyboard.row(btneng2)
-                keyboard.row(btneng3)
-                keyboard.row(btneng4)
-                keyboard.row(btneng5)
-                keyboard.row(btneng6)
-                keyboard.row(btneng7)
-            bot.send_message(message.chat.id, 'Выберите учебник', reply_markup=keyboard)
+    if isBack != 1:
+        if stage == 1:
+            btn1 = types.InlineKeyboardButton(text='Алгебра', callback_data='algebra')
+            btn2 = types.InlineKeyboardButton(text='Русский язык', callback_data='rus')
+            btn3 = types.InlineKeyboardButton(text='Английский язык', callback_data='english')
+            btn4 = types.InlineKeyboardButton(text='Геометрия', callback_data='geometry')
+            keyboard.row(btn1)
+            keyboard.row(btn2)
+            keyboard.row(btn3)
+            keyboard.row(btn4)
+            bot.send_message(message.chat.id, 'Выберите предмет', reply_markup=keyboard)
+        elif stage == 3:
+            if stage == 3:
+                if subject == 'rus':
+                    btnrus1 = types.InlineKeyboardButton(text='Тростнецова, Ладыженская', callback_data='rus1')
+                    btnrus2 = types.InlineKeyboardButton(text='Бархударов, Крючков', callback_data='rus2')
+                    btnrus3 = types.InlineKeyboardButton(text='Разумовская, Львова, Капинос', callback_data='rus3')
+                    btnrus4 = types.InlineKeyboardButton(text='Рыбченкова', callback_data='rus4')
+                    keyboard.row(btnrus1)
+                    keyboard.row(btnrus2)
+                    keyboard.row(btnrus3)
+                    keyboard.row(btnrus4)
+                elif subject == 'algebra':
+                    btnalg1 = types.InlineKeyboardButton(text='Мерзляк, Полонский, Якир', callback_data='alg1')
+                    btnalg2 = types.InlineKeyboardButton(text='Макарычев, Миндюк, Нешков, Суворова', callback_data='alg2')
+                    btnalg3 = types.InlineKeyboardButton(text='Макарычев, Миндюк, Нешков Углубленный уровень', callback_data='alg3')
+                    btnalg4 = types.InlineKeyboardButton(text='Мерзляк, Поляков Углубленный уровень', callback_data='alg4')
+                    btnalg5 = types.InlineKeyboardButton(text='Колягин, Ткачева, Федорова', callback_data='alg5')
+                    keyboard.row(btnalg1)
+                    keyboard.row(btnalg2)
+                    keyboard.row(btnalg3)
+                    keyboard.row(btnalg4)
+                    keyboard.row(btnalg5)
+                elif subject == 'geometry':
+                    btngeom1 = types.InlineKeyboardButton(text='Атанасян, Бутузов', callback_data='geom1')
+                    btngeom2 = types.InlineKeyboardButton(text='Мерзляк, Полонский', callback_data='geom2')
+                    btngeom3 = types.InlineKeyboardButton(text='Мерзляк, Поляков Углубленный уровень', callback_data='geom3')
+                    keyboard.row(btngeom1)
+                    keyboard.row(btngeom2)
+                    keyboard.row(btngeom3)
+                elif subject == 'english':
+                    btneng1 = types.InlineKeyboardButton(text='Spotlight 8 Ваулина Ю.Е', callback_data='eng1')
+                    btneng2 = types.InlineKeyboardButton(text='Кузовлев, Лапа Учебник Student`s book', callback_data='eng2')
+                    btneng3 = types.InlineKeyboardButton(text='English-8 Student`s book. Афанасьева О.В., Михеева, И.В.', callback_data='eng3')
+                    btneng4 = types.InlineKeyboardButton(text='рабочая тетрадь Ваулина, Дули', callback_data='eng4')
+                    btneng5 = types.InlineKeyboardButton(text='рабочая тетрадь Кузовлев, Перегудова', callback_data='eng5')
+                    btneng6 = types.InlineKeyboardButton(text='Activity Book Афанасьева, Михеева', callback_data='eng6')
+                    btneng7 = types.InlineKeyboardButton(text='тренировочные упражнения Spotlight 8 Ваулина, Подоляко', callback_data='eng7')
+                    keyboard.row(btneng1)
+                    keyboard.row(btneng2)
+                    keyboard.row(btneng3)
+                    keyboard.row(btneng4)
+                    keyboard.row(btneng5)
+                    keyboard.row(btneng6)
+                    keyboard.row(btneng7)
+                bot.send_message(message.chat.id, 'Выберите учебник', reply_markup=keyboard)
 
 
 bot.infinity_polling()
