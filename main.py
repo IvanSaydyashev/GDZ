@@ -217,8 +217,6 @@ def query_handler(call):
                             url_image = f'https:{img["src"]}'
                             bot.send_photo(call.message.chat.id, photo=url_image)
             elif call.data == 'eng2':
-                url = f'https://gdz.ru/class-8/english/reshebnik-enjoy-english-biboletova-2013/{msg}-s/'
-            elif call.data == 'eng3':
                 if msg == '27':
                     msg = '26'
                 elif msg == '36':
@@ -236,7 +234,7 @@ def query_handler(call):
                         if 'tasks' in img['src']:
                             url_image = f'https:{img["src"]}'
                             bot.send_photo(call.message.chat.id, photo=url_image)
-            elif call.data == 'eng4':
+            elif call.data == 'eng3':
                 if msg == '49':
                     msg = '48'
                 url = f'https://gdz.ru/class-8/english/afanaseva-miheeva-2008/{msg}-s/'
@@ -248,7 +246,7 @@ def query_handler(call):
                         if 'tasks' in img['src']:
                             url_image = f'https:{img["src"]}'
                             bot.send_photo(call.message.chat.id, photo=url_image)
-            elif call.data == 'eng5':
+            elif call.data == 'eng4':
                 url = f'https://gdz.ru/class-8/english/spotlight-workbook/{msg}-s/'
                 page = requests.get(url)
                 soup = BeautifulSoup(page.text, "html.parser")
@@ -258,7 +256,7 @@ def query_handler(call):
                         if 'tasks' in img['src']:
                             url_image = f'https:{img["src"]}'
                             bot.send_photo(call.message.chat.id, photo=url_image)
-            elif call.data == 'eng6':
+            elif call.data == 'eng5':
                 if msg == '32':
                     msg = '31'
                 elif msg == '80':
@@ -274,7 +272,7 @@ def query_handler(call):
                         if 'tasks' in img['src']:
                             url_image = f'https:{img["src"]}'
                             bot.send_photo(call.message.chat.id, photo=url_image)
-            elif call.data == 'eng7':
+            elif call.data == 'eng6':
                 url = f'https://gdz.ru/class-8/english/activity-book-afanasjeva-miheeva/{msg}-s'
                 page = requests.get(url)
                 soup = BeautifulSoup(page.text, "html.parser")
@@ -284,7 +282,7 @@ def query_handler(call):
                         if 'tasks' in img['src']:
                             url_image = f'https:{img["src"]}'
                             bot.send_photo(call.message.chat.id, photo=url_image)
-            elif call.data == 'eng8':
+            elif call.data == 'eng7':
                 if msg == '9':
                     msg = '8'
                 elif msg == '11':
@@ -324,8 +322,6 @@ def query_handler(call):
                         if 'tasks' in img['src']:
                             url_image = f'https:{img["src"]}'
                             bot.send_photo(call.message.chat.id, photo=url_image)
-            elif call.data == 'eng9':
-                url = f'https://gdz.ru/class-8/english/reshebnik-rabochaya-tetrad-enjoy-english-biboletova/{msg}-s'
         if isBack!=1:
             if subject != 'english':
                 if subject == 'geometry':
@@ -395,14 +391,12 @@ def main(message):
                 keyboard.row(btngeom3)
             elif subject == 'english':
                 btneng1 = types.InlineKeyboardButton(text='Spotlight 8 Ваулина Ю.Е', callback_data='eng1')
-                btneng2 = types.InlineKeyboardButton(text='Enjoy English Биболетова, Трубанева', callback_data='eng2')
-                btneng3 = types.InlineKeyboardButton(text='Кузовлев, Лапа Учебник Student`s book', callback_data='eng3')
-                btneng4 = types.InlineKeyboardButton(text='English-8 Student`s book. Афанасьева О.В., Михеева, И.В.', callback_data='eng4')
-                btneng5 = types.InlineKeyboardButton(text='рабочая тетрадь Ваулина, Дули', callback_data='eng5')
-                btneng6 = types.InlineKeyboardButton(text='рабочая тетрадь Кузовлев, Перегудова', callback_data='eng6')
-                btneng7 = types.InlineKeyboardButton(text='Activity Book Афанасьева, Михеева', callback_data='eng7')
-                btneng8 = types.InlineKeyboardButton(text='тренировочные упражнения Spotlight 8 Ваулина, Подоляко', callback_data='eng8')
-                btneng9 = types.InlineKeyboardButton(text='рабочая тетрадь Enjoy English Биболетова, Денисенко', callback_data='eng9')
+                btneng2 = types.InlineKeyboardButton(text='Кузовлев, Лапа Учебник Student`s book', callback_data='eng3')
+                btneng3 = types.InlineKeyboardButton(text='English-8 Student`s book. Афанасьева О.В., Михеева, И.В.', callback_data='eng4')
+                btneng4 = types.InlineKeyboardButton(text='рабочая тетрадь Ваулина, Дули', callback_data='eng5')
+                btneng5 = types.InlineKeyboardButton(text='рабочая тетрадь Кузовлев, Перегудова', callback_data='eng6')
+                btneng6 = types.InlineKeyboardButton(text='Activity Book Афанасьева, Михеева', callback_data='eng7')
+                btneng7 = types.InlineKeyboardButton(text='тренировочные упражнения Spotlight 8 Ваулина, Подоляко', callback_data='eng8')
                 keyboard.row(btneng1)
                 keyboard.row(btneng2)
                 keyboard.row(btneng3)
@@ -410,8 +404,6 @@ def main(message):
                 keyboard.row(btneng5)
                 keyboard.row(btneng6)
                 keyboard.row(btneng7)
-                keyboard.row(btneng8)
-                keyboard.row(btneng9)
             bot.send_message(message.chat.id, 'Выберите учебник', reply_markup=keyboard)
 
 
